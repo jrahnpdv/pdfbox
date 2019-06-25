@@ -43,7 +43,7 @@ import org.apache.pdfbox.io.ScratchFile;
 public class COSStream extends COSDictionary implements Closeable
 {
     private RandomAccess randomAccess;      // backing store, in-memory or on-disk
-    private final ScratchFile scratchFile;  // used as a temp buffer during decoding
+    protected final ScratchFile scratchFile;  // used as a temp buffer during decoding
     private boolean isWriting;              // true if there's an open OutputStream
     
     private static final Log LOG = LogFactory.getLog(COSStream.class);
@@ -294,7 +294,7 @@ public class COSStream extends COSDictionary implements Closeable
     /**
      * Returns the list of filters.
      */
-    private List<Filter> getFilterList() throws IOException
+    protected List<Filter> getFilterList() throws IOException
     {
         List<Filter> filterList = new ArrayList<>();
         COSBase filters = getFilters();

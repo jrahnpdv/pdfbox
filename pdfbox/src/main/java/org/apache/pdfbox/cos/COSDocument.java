@@ -140,6 +140,38 @@ public class COSDocument extends COSBase implements Closeable
         }
         return stream;
     }
+    
+    /**
+     * Creates a new ReferencedCOSStream using the current configuration for scratch files.
+     * 
+     * @return the new COSStream
+     */
+    public ReferencedCOSStream createReferencedCOSStream()
+    {
+        ReferencedCOSStream stream = new ReferencedCOSStream(scratchFile);
+        // collect all COSStreams so that they can be closed when closing the COSDocument.
+        // This is limited to newly created pdfs as all COSStreams of an existing pdf are
+        // collected within the map objectPool
+        streams.add(stream);
+        return stream;
+    }
+
+    /**
+     * Creates a new ReferencedCOSStream using the current configuration for scratch files.
+     * Not for public use. Only COSParser should call this method.
+     *
+     * @param dictionary the corresponding dictionary
+     * @return the new COSStream
+     */
+    public ReferencedCOSStream createReferencedCOSStream(COSDictionary dictionary)
+    {
+        ReferencedCOSStream stream = new ReferencedCOSStream(scratchFile);
+        for (Map.Entry<COSName, COSBase> entry : dictionary.entrySet())
+        {
+            stream.setItem(entry.getKey(), entry.getValue());
+        }
+        return stream;
+    }
 
     /**
      * This will get the first dictionary object by type.
