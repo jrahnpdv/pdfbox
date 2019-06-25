@@ -166,9 +166,9 @@ public class TestFields extends TestCase
             // get a rich text field with a text stream for the value
             textField = (PDTextField)form.getField("LongRichTextField");
             assertNotNull(textField);
-            assertEquals(textField.getCOSObject().getDictionaryObject(
-                    COSName.V).getClass().getName(),
-                    "org.apache.pdfbox.cos.COSStream");
+            String className = textField.getCOSObject().getDictionaryObject(
+                    COSName.V).getClass().getName();
+            assertTrue(className.equals("org.apache.pdfbox.cos.COSStream") || className.equals("org.apache.pdfbox.cos.ReferencedCOSStream"));
             assertEquals(textField.getValue().length(),145396);
             
         }
