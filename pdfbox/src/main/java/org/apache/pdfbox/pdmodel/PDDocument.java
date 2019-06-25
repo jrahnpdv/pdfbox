@@ -984,6 +984,7 @@ public class PDDocument implements Closeable
             try
             {
                 PDFParser parser = new PDFParser(raFile, password, keyStore, alias, scratchFile);
+                parser.setReference(file);
                 parser.parse();
                 return parser.getPDDocument();
             }
