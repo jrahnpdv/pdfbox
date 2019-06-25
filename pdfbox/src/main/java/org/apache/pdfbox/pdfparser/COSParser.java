@@ -16,6 +16,7 @@
  */
 package org.apache.pdfbox.pdfparser;
 
+import java.io.File;
 import static org.apache.pdfbox.util.Charsets.ISO_8859_1;
 
 import java.io.IOException;
@@ -50,6 +51,7 @@ import org.apache.pdfbox.cos.COSNumber;
 import org.apache.pdfbox.cos.COSObject;
 import org.apache.pdfbox.cos.COSObjectKey;
 import org.apache.pdfbox.cos.COSStream;
+import org.apache.pdfbox.cos.ReferencedCOSStream;
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.io.RandomAccessRead;
 import org.apache.pdfbox.pdfparser.XrefTrailerResolver.XRefType;
@@ -177,7 +179,10 @@ public class COSParser extends BaseParser
      * object using startxref reference. 
      */
     protected XrefTrailerResolver xrefTrailerResolver = new XrefTrailerResolver();
-
+    
+    /** May be set to indicate the location of the file being parsed, this 
+     * enables the use of ReferencedCOSStream */
+    protected File reference;
 
     /**
      * The prefix for the temp file being used. 
@@ -212,6 +217,16 @@ public class COSParser extends BaseParser
         this.password = password;
         this.keyAlias = keyAlias;
         keyStoreInputStream = keyStore;
+    }
+    
+    /**
+     * Sets the file indiaged as the file that is currently parsed. This opts
+     * in to the usage of ReferencedCOSStream
+     * @param reference 
+     */
+    public void setReference(File reference)
+    {
+       this.reference = reference;
     }
 
     /**
@@ -1083,7 +1098,7 @@ public class COSParser extends BaseParser
      */
     protected COSStream parseCOSStream(COSDictionary dic) throws IOException
     {
-        COSStream stream = document.createCOSStream(dic);
+        COSStream stream;
        
         // read 'stream'; this was already tested in parseObjectsDynamically()
         readString(); 
@@ -1107,16 +1122,38 @@ public class COSParser extends BaseParser
             }
         }
 
-        // get output stream to copy data to
-        try (OutputStream out = stream.createRawOutputStream())
+        if (reference != null && (streamLengthObj != null) && (streamLengthObj.longValue() >= 1024) && validateStreamLength(streamLengthObj.longValue()))
         {
-            if (streamLengthObj != null && validateStreamLength(streamLengthObj.longValue()))
+            final long                streamBegPos = source.getPosition();
+            stream    = document.createReferencedCOSStream(dic);
+
+            try
             {
-                readValidStream(out, streamLengthObj);
+                source.seek(source.getPosition() + streamLengthObj.longValue());
             }
-            else
+            finally
             {
-                readUntilEndStream(new EndstreamOutputStream(out));
+                stream.setItem(COSName.LENGTH, streamLengthObj);
+            }
+            ((ReferencedCOSStream)stream).setReference(reference, streamBegPos, streamLengthObj.longValue());
+         }
+         else
+         {
+            stream = document.createCOSStream(dic);
+            try(final OutputStream out = stream.createRawOutputStream())
+            {
+               if ((streamLengthObj != null) && validateStreamLength(streamLengthObj.longValue()))
+               {
+                  readValidStream(out, streamLengthObj);
+               }
+              else
+               {
+                  readUntilEndStream(new EndstreamOutputStream(out));
+               }
+            }
+            finally
+            {
+               stream.setItem(COSName.LENGTH, streamLengthObj);
             }
         }
         String endStream = readString();
