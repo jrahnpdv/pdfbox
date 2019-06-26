@@ -16,7 +16,7 @@ import org.junit.Test;
 
 /**
  *
- * @author JRA
+ * @author Jonathan Rahn
  */
 public class TestReferencedCOSStream
 {

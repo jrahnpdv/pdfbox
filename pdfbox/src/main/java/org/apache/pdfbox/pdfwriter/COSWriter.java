@@ -189,7 +189,7 @@ public class COSWriter implements ICOSVisitor, Closeable
     private final Deque<COSBase> objectsToWrite = new LinkedList<>();
 
     //a list of objects already written
-    private final Set<COSBase> writtenObjects = new HashSet<>();
+    protected final Set<COSBase> writtenObjects = new HashSet<>();
 
     //An 'actual' is any COSBase that is not a COSObject.
     //need to keep a list of the actuals that are added
@@ -200,8 +200,8 @@ public class COSWriter implements ICOSVisitor, Closeable
     private final Set<COSBase> actualsAdded = new HashSet<>();
 
     private COSObjectKey currentObjectKey = null;
-    private PDDocument pdDocument = null;
-    private FDFDocument fdfDocument = null;
+    protected PDDocument pdDocument = null;
+    protected FDFDocument fdfDocument = null;
     private boolean willEncrypt = false;
 
     // signing
@@ -382,7 +382,7 @@ public class COSWriter implements ICOSVisitor, Closeable
      *
      * @param newOutput The new output stream.
      */
-    private void setOutput( OutputStream newOutput )
+    protected void setOutput( OutputStream newOutput )
     {
         output = newOutput;
     }
@@ -392,7 +392,7 @@ public class COSWriter implements ICOSVisitor, Closeable
      *
      * @param newStandardOutput The new standard output stream.
      */
-    private void setStandardOutput(COSStandardOutputStream newStandardOutput)
+    protected void setStandardOutput(COSStandardOutputStream newStandardOutput)
     {
         standardOutput = newStandardOutput;
     }

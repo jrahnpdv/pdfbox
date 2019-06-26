@@ -41,10 +41,10 @@ public class ReferencedCOSStream
 {
    //~ Instance members ------------------------------------------------------------------------------------------------------------------------------
 
-   boolean isReference = false;
-   File    reference   = null;
-   long    offset      = -1;
-   long    length      = -1;
+   private boolean isReference = false;
+   private File    reference   = null;
+   private long    offset      = -1;
+   private long    length      = -1;
 
    //~ Constructors ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -115,6 +115,27 @@ public class ReferencedCOSStream
       this.offset      = offset;
       this.length      = length;
       this.setLong(COSName.LENGTH, length);
+   }
+   
+   public File getReference()
+   {
+      return this.reference;
+   }
+   
+   public boolean isReferencedStream()
+   {
+      return this.isReference;
+   }
+   
+   public long getOffset()
+   {
+      return this.offset;
+   }
+   
+   @Override
+   public long getLength()
+   {
+      return this.length;
    }
 
    //~ Inner Classes ---------------------------------------------------------------------------------------------------------------------------------
