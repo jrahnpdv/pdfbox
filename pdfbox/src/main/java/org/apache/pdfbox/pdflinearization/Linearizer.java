@@ -46,6 +46,7 @@ import org.apache.pdfbox.pdfwriter.COSWriterXRefEntry;
 import org.apache.pdfbox.pdflinearization.PDFObjectQueue.ObjectMetaData;
 import org.apache.pdfbox.pdflinearization.PDFObjectQueue.PDFDummyObjects;
 import org.apache.pdfbox.pdflinearization.WrittenObjectStore.SpecialParts;
+import org.apache.pdfbox.pdmodel.PDDocument;
 
 
 /**
@@ -59,7 +60,7 @@ public class Linearizer
 {
    //~ Instance members ------------------------------------------------------------------------------------------------------------------------------
 
-   private final COSDocument document;
+   private final PDDocument document;
 
    //~ Constructors ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -68,7 +69,7 @@ public class Linearizer
     *
     * @param doc document to linearize
     */
-   public Linearizer(final COSDocument doc)
+   public Linearizer(final PDDocument doc)
    {
       this.document = doc;
    }
@@ -86,7 +87,7 @@ public class Linearizer
       throws IOException
    {
       // optimiere objekte und ordne diese in richtige Reihenfolge
-      final StructuredPDFInfo info = new StructuredPDFInfo(this.document);
+      final StructuredPDFInfo info = new StructuredPDFInfo(this.document.getDocument());
 
       info.getLinearizedParts();
 
@@ -108,7 +109,7 @@ public class Linearizer
       final LinearizedPDFWriter      writer       = new LinearizedPDFWriter(this.document);
       final LinearizationInformation offsets      = new LinearizationInformation();
       final WrittenObjectStore       writtenStore = new WrittenObjectStore();
-      final COSDictionary            firstTrailer = document.getTrailer();
+      final COSDictionary            firstTrailer = document.getDocument().getTrailer();
       final COSDictionary            secTrailer   = new COSDictionary();
       final PDFObjectQueue           queue        = new PDFObjectQueue();
 
@@ -144,7 +145,7 @@ public class Linearizer
          writer.writeHeader();
          writer.doWriteObject(linearizedDictObject);
          offsets.firstXrefOffset = writer.getPos();
-         writer.doWriteXrefRangeDummy(this.document, offsets.getFirstXrefStart(), offsets.getFirstXrefLength(), firstTrailer,
+         writer.doWriteXrefRangeDummy(this.document.getDocument(), offsets.getFirstXrefStart(), offsets.getFirstXrefLength(), firstTrailer,
                                       queue.get(PDFDummyObjects.FIRSTXREF).objNumber, 0);
          offsets.firstXrefEnd = writtenStore.add(SpecialParts.PARTS_BEFORE_FIRST_XREF, writer.getAndResetParts());
 
@@ -169,7 +170,7 @@ public class Linearizer
          offsets.mainXrefOffset = cumulateLength;
 
          // write end file again - this time with corect values
-         writer.doWriteXrefRange(this.document, offsets.getSecondXrefLength(), xrefentries_sec, secTrailer,
+         writer.doWriteXrefRange(this.document.getDocument(), offsets.getSecondXrefLength(), xrefentries_sec, secTrailer,
                                  queue.get(PDFDummyObjects.SECONDXREF).objNumber, offsets.firstXrefOffset, cumulateLength);
          cumulateLength += writtenStore.add(SpecialParts.SECOND_XREF_PART, writer.getAndResetParts());
 
@@ -187,7 +188,7 @@ public class Linearizer
          writer.removeWrittenObject(linearizedDictObject);
          writer.doWriteObject(linearizedDictObject);
          writer.fillUntilPos(offsets.firstXrefOffset);
-         writer.doWriteXrefRange(this.document, offsets.getFirstXrefLength(), xrefentries_first, firstTrailer,
+         writer.doWriteXrefRange(this.document.getDocument(), offsets.getFirstXrefLength(), xrefentries_first, firstTrailer,
                                  queue.get(PDFDummyObjects.FIRSTXREF).objNumber, 0, offsets.firstXrefOffset);
          writer.fillUntilPos(offsets.firstXrefEnd);
          writtenStore.add(SpecialParts.PARTS_BEFORE_FIRST_XREF, writer.getAndResetParts());

@@ -202,7 +202,7 @@ public class COSWriter implements ICOSVisitor, Closeable
     private COSObjectKey currentObjectKey = null;
     protected PDDocument pdDocument = null;
     protected FDFDocument fdfDocument = null;
-    private boolean willEncrypt = false;
+    protected boolean willEncrypt = false;
 
     // signing
     private boolean incrementalUpdate = false;

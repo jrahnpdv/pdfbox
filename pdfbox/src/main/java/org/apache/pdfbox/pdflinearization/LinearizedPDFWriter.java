@@ -92,10 +92,14 @@ class LinearizedPDFWriter
     *
     * @param doc The document that should be written
     */
-   LinearizedPDFWriter(final COSDocument doc)
+   LinearizedPDFWriter(final PDDocument doc)
    {
       super(new ByteArrayOutputStream());
-      this.pdDocument = new PDDocument(doc);
+      this.pdDocument = doc;
+      if (doc.getEncryption() != null)
+      {
+         willEncrypt = true;
+      }
       writtenParts    = new ArrayList<>();
    }
 
