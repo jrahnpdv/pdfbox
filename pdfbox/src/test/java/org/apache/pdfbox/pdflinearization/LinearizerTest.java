@@ -52,28 +52,36 @@ public class LinearizerTest
    @Test
    public void testLinearization() throws IOException
    {
-      int DPI = 50;
+      int DPI = 30;
       int pageCount;
       for (File file : SRCDIR.listFiles())
       {
-         try (PDDocument srcDoc = PDDocument.load(new FileInputStream(file)))
+         if (Files.isDirectory(file.toPath()))
+         {
+            continue;
+         }
+         System.out.println("Test " + file.getName());
+         try (PDDocument srcDoc = PDDocument.load(file))
          {
             pageCount = srcDoc.getNumberOfPages();
             PDFRenderer src1PdfRenderer = new PDFRenderer(srcDoc);
 
-            Linearizer linearizer = new Linearizer(srcDoc.getDocument());
+            Linearizer linearizer = new Linearizer(srcDoc);
             WrittenObjectStore store = linearizer.linearize();
-            FileOutputStream out = new FileOutputStream(new File(TARGETPDFDIR, file.getName()));
-            store.writeFile(out);
-
-            PDDocument targetDoc = PDDocument.load(new File(TARGETPDFDIR, file.getName()));
-
-            PDFRenderer src2PdfRenderer = new PDFRenderer(targetDoc);
-            for (int page = 0; page < pageCount; ++page)
+            try (FileOutputStream out = new FileOutputStream(new File(TARGETPDFDIR, file.getName())))
             {
-               BufferedImage img1 = src1PdfRenderer.renderImageWithDPI(page, DPI);
-               BufferedImage img2 = src2PdfRenderer.renderImageWithDPI(page, DPI);
-               checkImagesIdentical(img1, img2);
+               store.writeFile(out);
+            }
+
+            try (PDDocument targetDoc = PDDocument.load(new File(TARGETPDFDIR, file.getName())))
+            {
+               PDFRenderer src2PdfRenderer = new PDFRenderer(targetDoc);
+               for (int page = 0; page < pageCount; ++page)
+               {
+                  BufferedImage img1 = src1PdfRenderer.renderImageWithDPI(page, DPI);
+                  BufferedImage img2 = src2PdfRenderer.renderImageWithDPI(page, DPI);
+                  checkImagesIdentical(img1, img2);
+               }
             }
          }
       }
