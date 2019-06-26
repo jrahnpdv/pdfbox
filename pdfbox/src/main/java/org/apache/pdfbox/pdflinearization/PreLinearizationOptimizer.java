@@ -311,11 +311,16 @@ class PreLinearizationOptimizer
 
       boolean is_page_node = false;
       COSBase treeObj      = treeObjIn;
+      
+      if (treeObj instanceof COSObject && ((COSObject)treeObj).getObject() == null) {
+           treeObj.setDirect(false);
+       } else {
+           treeObj.setDirect(true);
+       }
 
       if (treeObjIn instanceof COSObject)
       {
          treeObj = ((COSObject)treeObjIn).getObject();
-         treeObjIn.setDirect(treeObj != null);
       }
 
       if ((treeObj instanceof COSDictionary) && ((COSDictionary)treeObj).containsKey(COSName.TYPE))

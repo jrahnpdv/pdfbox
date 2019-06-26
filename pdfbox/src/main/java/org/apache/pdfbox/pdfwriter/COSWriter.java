@@ -933,7 +933,7 @@ public class COSWriter implements ICOSVisitor, Closeable
             else if( current instanceof COSObject )
             {
                 COSBase subValue = ((COSObject)current).getObject();
-                if (willEncrypt || incrementalUpdate || subValue instanceof COSDictionary || subValue == null)
+                if (this.shouldWriteSubValueAsReference(subValue))
                 {
                     // PDFBOX-4308: added willEncrypt to prevent an object
                     // that is referenced several times from being written
@@ -978,6 +978,12 @@ public class COSWriter implements ICOSVisitor, Closeable
     {
         obj.writePDF( getStandardOutput() );
         return null;
+    }
+    
+    protected boolean shouldWriteSubValueAsReference(COSBase subValue)
+    {
+       return willEncrypt || incrementalUpdate || subValue instanceof COSDictionary || subValue == null;
+       //return willEncrypt || incrementalUpdate || subValue == null || !(subValue instanceof COSObject);
     }
 
     @Override
@@ -1035,7 +1041,7 @@ public class COSWriter implements ICOSVisitor, Closeable
                 else if( value instanceof COSObject )
                 {
                     COSBase subValue = ((COSObject)value).getObject();
-                    if (willEncrypt || incrementalUpdate || subValue instanceof COSDictionary || subValue == null)
+                    if (this.shouldWriteSubValueAsReference(subValue))
                     {
                         // PDFBOX-4308: added willEncrypt to prevent an object
                         // that is referenced several times from being written

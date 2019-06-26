@@ -39,6 +39,7 @@ import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.cos.COSObject;
 import org.apache.pdfbox.cos.COSObjectKey;
 import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.pdfparser.PDFXRefStream;
@@ -372,6 +373,14 @@ class LinearizedPDFWriter
    {
       return this.getXRefEntries();
    }
+   
+   @Override
+   protected boolean shouldWriteSubValueAsReference(COSBase subValue)
+    {
+       return super.shouldWriteSubValueAsReference(subValue) || !(subValue instanceof COSObject);
+       //return willEncrypt || incrementalUpdate || subValue instanceof COSDictionary || subValue == null;
+       //return willEncrypt || incrementalUpdate || subValue == null || !(subValue instanceof COSObject);
+    }
 
 
    /**
