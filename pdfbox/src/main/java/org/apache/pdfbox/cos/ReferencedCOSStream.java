@@ -214,6 +214,7 @@ public class ReferencedCOSStream
          }
       }
       
+      @Override
       public int read() throws IOException {
          if (this.available() > 0) {
             index += 1;
