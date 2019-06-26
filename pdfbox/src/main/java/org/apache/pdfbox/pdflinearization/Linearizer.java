@@ -68,10 +68,12 @@ public class Linearizer
     * Default constructor
     *
     * @param doc document to linearize
+    * @throws java.io.IOException
     */
-   public Linearizer(final PDDocument doc)
+   public Linearizer(final PDDocument doc) throws IOException
    {
-      this.document = doc;
+      SimplifiedPDFDocument simplified = new SimplifiedPDFDocument(doc.getDocument());
+      this.document = new PDDocument(simplified);
    }
 
    //~ Methods ---------------------------------------------------------------------------------------------------------------------------------------
@@ -100,7 +102,7 @@ public class Linearizer
       // first half
       // linearization dictionary
       // first half xref stream, if any
-      // part 4 uncompresesd objects
+      // part 4 uncompressed objects
       // encryption dictionary, if any
       // hint stream
       // part 6 uncompressed objects
